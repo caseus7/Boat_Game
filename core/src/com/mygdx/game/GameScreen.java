@@ -17,6 +17,7 @@ public class GameScreen implements Screen {
     int boatX;
 
     public GameScreen(BoatGame game) {
+        //A random comment.
         this.game = game;
 
         camera = new OrthographicCamera();
