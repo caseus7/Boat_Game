@@ -53,11 +53,11 @@ public class GameScreen implements Screen {
         batch.end();
     }
 
-    public void generalUpdate(){
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
+    public void generalUpdate() {
+        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
             boatX -= 100;
         }
-        else if(Gdx.input.isKeyPressed(Input.Keys.D)){
+        else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
             boatX += 100;
         }
     }
