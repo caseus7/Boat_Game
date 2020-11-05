@@ -8,7 +8,7 @@ import com.mygdx.game.BoatGame;
 public class HtmlLauncher extends GwtApplication {
 
         @Override
-        public GwtApplicationConfiguration getConfig () {
+        public GwtApplicationConfiguration getConfig() {
                 // Resizable application, uses available space in browser
                 return new GwtApplicationConfiguration(true);
                 // Fixed size application:
@@ -16,7 +16,7 @@ public class HtmlLauncher extends GwtApplication {
         }
 
         @Override
-        public ApplicationListener createApplicationListener () {
+        public ApplicationListener createApplicationListener() {
                 return new BoatGame();
         }
 }
