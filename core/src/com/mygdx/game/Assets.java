@@ -20,6 +20,7 @@ public class Assets {
     public static Animation[] boat_animations;
     public static TextureRegion[][] boats;
 
+
     public static void load(){
 
         sprite_sheet = new Texture(Gdx.files.internal("SpriteSheet.png"));

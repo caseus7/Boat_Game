@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.game.BoatGame;
 import sun.security.util.Debug;
 
@@ -47,8 +48,20 @@ public class GameScreen implements Screen {
 
     Rival[] otherBoats;
 
+    BoatGrid gameGrid = new BoatGrid();
+
+    Obstacle[] Obstacles;
+
+    ObstacleGrid obstacleGrid = new ObstacleGrid();
+
+    String previousMove = "";
+
+    long[] rivalMoveTimers = {0,0,0};
+
     public GameScreen(BoatGame game) {
         this.game = game;
+
+        gameGrid.printGrid();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(true, 1920, 1080);
@@ -56,18 +69,25 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
         stateTime = 0F;
 
-        boatX = 464;
-        boatY = 500;
+        boatX = 592;
+        boatY = 540;
 
         otherBoats = new Rival[3];
         for(int i = 0; i<3; i++){
             int temp = ThreadLocalRandom.current().nextInt(0,10);
             otherBoats[i] = new Rival(4, temp);
+            otherBoats[i].setY(540);
         }
+        otherBoats[0].setX(112);
+        otherBoats[1].setX(1072);
+        otherBoats[2].setX(1552);
 
-        System.err.println(otherBoats[0].getType());
-        System.err.println(otherBoats[1].getType());
-        System.err.println(otherBoats[2].getType());
+        Obstacles = new Obstacle[4];
+        for(int i = 0; i<4; i++){
+            int temp = ThreadLocalRandom.current().nextInt(0,5);
+            Obstacles[i] = new Obstacle(temp, 5);
+            Obstacles[i].setColumn(i);
+        }
 
     }
 
@@ -90,9 +110,15 @@ public class GameScreen implements Screen {
         Assets.rival_current_frame_1 = (TextureRegion) Assets.boat_animations[otherBoats[0].getType()].getKeyFrame(stateTime, true);
         Assets.rival_current_frame_2 = (TextureRegion) Assets.boat_animations[otherBoats[1].getType()].getKeyFrame(stateTime, true);
         Assets.rival_current_frame_3 = (TextureRegion) Assets.boat_animations[otherBoats[2].getType()].getKeyFrame(stateTime, true);
+
+        for(int i = 0; i < 4; i++) {
+            Obstacles[i].setCurrentFrame((TextureRegion) Obstacles[i].getAnim().getKeyFrame(stateTime, true));
+        }
+
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
+
 
         if(true) {
             batch.draw(Assets.sprite_frames[50], 0, waterIndex1, 512, 512);
@@ -138,24 +164,28 @@ public class GameScreen implements Screen {
         batch.draw(Assets.sprite_frames[54],224,ropeIndex4,512,512);
         batch.draw(Assets.sprite_frames[54],1184,ropeIndex4,512,512);
 
-        batch.draw(Assets.rival_current_frame_1, -16,boatY,512,512);
-        batch.draw(Assets.rival_current_frame_2, 944,boatY,512,512);
-        batch.draw(Assets.rival_current_frame_3, 1424,boatY,512,512);
+        batch.draw(Assets.current_frame, boatX,boatY,256,256);
 
-        batch.draw(Assets.current_frame, boatX,boatY,512,512);
+        batch.draw(Assets.rival_current_frame_1, otherBoats[0].getX(),otherBoats[0].getY(),256,256);
+        batch.draw(Assets.rival_current_frame_2, otherBoats[1].getX(),otherBoats[1].getY(),256,256);
+        batch.draw(Assets.rival_current_frame_3, otherBoats[2].getX(),otherBoats[2].getY(),256,256);
 
+        batch.draw(Obstacles[0].getCurrentFrame(), 372, 256, -256, -256);
+        batch.draw(Obstacles[1].getCurrentFrame(), 852, 500, -256, -256);
+        batch.draw(Obstacles[2].getCurrentFrame(), 1332, 500, -256, -256);
+        batch.draw(Obstacles[3].getCurrentFrame(), 1812, 1066, -256, -256);
 
         font.draw(batch, "Distance: " + Double.toString(Math.floor(raceDist)) + "m",30,30);
         batch.end();
     }
 
     public void generalUpdate(){
-        if(Gdx.input.isKeyJustPressed(Input.Keys.A) && boatX != -16){
-            boatX -= 480;
+        for(int i = 0; i<3; i++){
+            Integer[] coords = gameGrid.findBoat(i);
+            otherBoats[i].setX((480*coords[1]) + 112);
+            otherBoats[i].setY((270*coords[0]));
         }
-        else if(Gdx.input.isKeyJustPressed(Input.Keys.D) && boatX != 1424){
-            boatX += 480;
-        }
+
         if(Gdx.input.isKeyJustPressed((Input.Keys.M))){
             if(currentBoat < 9) {
                 currentBoat += 1;
@@ -221,6 +251,93 @@ public class GameScreen implements Screen {
 
         if(raceDist >= 484 && finIndex < 132){
             finIndex += playerSpeed;
+        }
+
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.W)){
+            gameGrid.printGrid();
+            if(gameGrid.moveBoat(3, "up")){
+                boatY -= 270;
+            }
+            gameGrid.printGrid();
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.A)){
+            gameGrid.printGrid();
+            if(gameGrid.moveBoat(3, "left")) {
+                boatX -= 480;
+            }
+            gameGrid.printGrid();
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.S)){
+            gameGrid.printGrid();
+            if(gameGrid.moveBoat(3, "down")) {
+                boatY += 270;
+            }
+            gameGrid.printGrid();
+        }if(Gdx.input.isKeyJustPressed(Input.Keys.D)){
+            gameGrid.printGrid();
+            if(gameGrid.moveBoat(3, "right")) {
+                boatX += 480;
+            }
+            gameGrid.printGrid();
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
+            Obstacles[0].RandomiseType();
+            Obstacles[1].RandomiseType();
+            Obstacles[2].RandomiseType();
+            Obstacles[3].RandomiseType();
+        }
+
+
+        obstacleGrid.Incoming(2);
+        obstacleGrid.Incoming(3);
+
+        for (int i = 0;i < 3; i++){
+            rivalMoveTimers[i] += 1;
+            if(rivalMoveTimers[i] > (otherBoats[i].getSpeed()*30)){
+                gameGrid.printGrid();
+                rivalMoveTimers[i] = 0;
+                Integer[] startingCoords = gameGrid.findBoat(i);
+                if (obstacleGrid.safe(startingCoords[0], startingCoords[1]) == false) {
+
+                    if (obstacleGrid.safe(startingCoords[0], startingCoords[1] + 1) && previousMove != "left") {
+                        if (gameGrid.moveRival(i, "right", otherBoats[i])) {
+                            previousMove = "right";
+                            break;
+                        }
+                    } else if (obstacleGrid.safe(startingCoords[0], startingCoords[1] - 1) && previousMove != "right") {
+                        if (gameGrid.moveRival(i, "left", otherBoats[i])) {
+                            previousMove = "left";
+                            break;
+                        }
+                    } else if (obstacleGrid.safe(startingCoords[0] - 1, startingCoords[1]) && previousMove != "up") {
+                        if (gameGrid.moveRival(i, "down", otherBoats[i])) {
+                            previousMove = "down";
+                            break;
+                        }
+                    } else if (obstacleGrid.safe(startingCoords[0] + 1, startingCoords[1]) && previousMove != "down") {
+                        if (gameGrid.moveRival(i, "up", otherBoats[i])) {
+                            previousMove = "up";
+                            break;
+                        }
+                    }
+
+                    if (gameGrid.moveRival(i, "up", otherBoats[i]) && previousMove != "down") {
+                        previousMove = "up";
+                        break;
+                    } else if (gameGrid.moveRival(i, "down", otherBoats[i]) && previousMove != "up") {
+                        previousMove = "down";
+                        break;
+                    } else if (gameGrid.moveRival(i, "left", otherBoats[i]) && previousMove != "right") {
+                        previousMove = "left";
+                        break;
+                    } else if (gameGrid.moveRival(i, "right", otherBoats[i]) && previousMove != "left") {
+                        previousMove = "right";
+                        break;
+                    }
+                }
+            }
         }
 
     }
