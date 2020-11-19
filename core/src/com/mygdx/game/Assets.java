@@ -19,11 +19,27 @@ public class Assets {
     public static TextureRegion rival_current_frame_3;
     public static Animation[] boat_animations;
     public static TextureRegion[][] boats;
+    public static Texture warning;
+    public static Texture heart;
+    public static Texture start;
+    public static Texture startSelected;
+    public static Texture exit;
+    public static Texture exitSelected;
+    public static Texture lIndicator;
+    public static Texture caseusLogo;
 
 
     public static void load(){
 
+        warning = new Texture(Gdx.files.internal("New Piskel-1.png.png"));
+        start = new Texture(Gdx.files.internal("New Piskel-3.png.png"));
+        startSelected = new Texture(Gdx.files.internal("New Piskel-4.png.png"));
+        exit = new Texture(Gdx.files.internal("New Piskel-5.png.png"));
+        exitSelected = new Texture(Gdx.files.internal("New Piskel-6.png.png"));
+        lIndicator = new Texture(Gdx.files.internal("New Piskel-7.png.png"));
+        heart = new Texture(Gdx.files.internal("New Piskel-2.png.png"));
         sprite_sheet = new Texture(Gdx.files.internal("SpriteSheet.png"));
+        caseusLogo = new Texture(Gdx.files.internal("CaseusLogo.png"));
         TextureRegion[][] temp = TextureRegion.split(sprite_sheet, 64,64);
         sprite_frames = new TextureRegion[56];
         boats = new TextureRegion[10][4];

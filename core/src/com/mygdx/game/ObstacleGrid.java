@@ -20,8 +20,16 @@ public class ObstacleGrid {
         this.grid[3][column] = 1;
     }
 
+    public int findVal(int x,int y){
+        return this.grid[x][y];
+    }
+
     public void ObstacleMove(Integer column){
-        if(this.grid[1][column] == 2){
+        if(this.grid[0][column] == 2){
+            this.grid[0][column] = 0;
+            this.grid[1][column] = 2;
+        }
+        else if(this.grid[1][column] == 2){
             this.grid[1][column] = 0;
             this.grid[2][column] = 2;
         }
@@ -63,10 +71,12 @@ public class ObstacleGrid {
         String line3 = Integer.toString(this.grid[2][0]) + "," + Integer.toString(this.grid[2][1]) + "," + Integer.toString(this.grid[2][2]) + "," + Integer.toString(this.grid[2][3]);
         String line4 = Integer.toString(this.grid[3][0]) + "," + Integer.toString(this.grid[3][1]) + "," + Integer.toString(this.grid[3][2]) + "," + Integer.toString(this.grid[3][3]);
 
+        System.err.println("--------------------");
         System.err.println(line1);
         System.err.println(line2);
         System.err.println(line3);
         System.err.println(line4);
+        System.err.println("--------------------");
     }
 
 }

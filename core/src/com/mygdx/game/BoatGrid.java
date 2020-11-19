@@ -48,6 +48,11 @@ public class BoatGrid {
         System.err.println("--------------------");
     }
 
+    public void removeBoat(Integer boatNum){
+        Integer[] coords = this.findBoat(boatNum);
+        this.grid[coords[0]][coords[1]] = 4;
+    }
+
     public Boolean moveBoat(Integer boatNum, String direction){
         if(boatNum < 1 || boatNum > 4){
             return false;

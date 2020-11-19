@@ -26,7 +26,7 @@ public class GameScreen implements Screen {
     float stateTime;
     int boatX;
     int boatY;
-    int currentBoat = 0;
+    public static int currentBoat = 0;
 
     int waterIndex1 = 1024;
     int waterIndex2 = -512;
@@ -58,6 +58,23 @@ public class GameScreen implements Screen {
 
     long[] rivalMoveTimers = {0,0,0};
 
+    int obstacletimer;
+    int obstacleMovingTimer;
+    boolean obstacleMoving;
+    int obstacleNum;
+
+    boolean[] warnings;
+
+    int playerHealth = 3;
+    int playerIFrames = 0;
+    boolean playerIFramesMoving = false;
+
+    int[] rivalIFrames = {0,0,0};
+    boolean[] rivalIFramesMoving = {false,false,false};
+    boolean[] rivalAlreadyRemoved = {false, false, false};
+
+    int check = 0;
+
     public GameScreen(BoatGame game) {
         this.game = game;
 
@@ -87,8 +104,17 @@ public class GameScreen implements Screen {
             int temp = ThreadLocalRandom.current().nextInt(0,5);
             Obstacles[i] = new Obstacle(temp, 5);
             Obstacles[i].setColumn(i);
+            Obstacles[i].resetY();
         }
 
+        obstacletimer = 0;
+        obstacleMovingTimer = 0;
+        obstacleMoving = false;
+
+        warnings = new boolean[4];
+        for(int i =0;i<4;i++){
+            warnings[i] = false;
+        }
     }
 
     @Override
@@ -166,24 +192,104 @@ public class GameScreen implements Screen {
 
         batch.draw(Assets.current_frame, boatX,boatY,256,256);
 
-        batch.draw(Assets.rival_current_frame_1, otherBoats[0].getX(),otherBoats[0].getY(),256,256);
-        batch.draw(Assets.rival_current_frame_2, otherBoats[1].getX(),otherBoats[1].getY(),256,256);
-        batch.draw(Assets.rival_current_frame_3, otherBoats[2].getX(),otherBoats[2].getY(),256,256);
+        if(otherBoats[0].isAlive()) {
+            batch.draw(Assets.rival_current_frame_1, otherBoats[0].getX(), otherBoats[0].getY(), 256, 256);
+        }
+        if(otherBoats[1].isAlive()) {
+            batch.draw(Assets.rival_current_frame_2, otherBoats[1].getX(), otherBoats[1].getY(), 256, 256);
+        }
+        if(otherBoats[2].isAlive()) {
+            batch.draw(Assets.rival_current_frame_3, otherBoats[2].getX(), otherBoats[2].getY(), 256, 256);
+        }
 
-        batch.draw(Obstacles[0].getCurrentFrame(), 372, 256, -256, -256);
-        batch.draw(Obstacles[1].getCurrentFrame(), 852, 500, -256, -256);
-        batch.draw(Obstacles[2].getCurrentFrame(), 1332, 500, -256, -256);
-        batch.draw(Obstacles[3].getCurrentFrame(), 1812, 1066, -256, -256);
+        batch.draw(Obstacles[0].getCurrentFrame(), 372, Obstacles[0].getY(), -256, -256);
+        batch.draw(Obstacles[1].getCurrentFrame(), 852, Obstacles[1].getY(), -256, -256);
+        batch.draw(Obstacles[2].getCurrentFrame(), 1332, Obstacles[2].getY(), -256, -256);
+        batch.draw(Obstacles[3].getCurrentFrame(), 1812, Obstacles[3].getY(), -256, -256);
+
+        if(playerHealth == 3) {
+            batch.draw(Assets.heart, 1920, 120, -128, -128);
+        }
+        if(playerHealth >= 2) {
+            batch.draw(Assets.heart, 1792, 120, -128, -128);
+        }
+        if(playerHealth >= 1) {
+            batch.draw(Assets.heart, 1664, 120, -128, -128);
+        }
+
+        if(warnings[0]) {
+            batch.draw(Assets.warning, 372, 256, -256, -256);
+        }
+        if(warnings[1]) {
+            batch.draw(Assets.warning, 852, 256, -256, -256);
+        }
+        if(warnings[2]) {
+            batch.draw(Assets.warning, 1332, 256, -256, -256);
+        }
+        if(warnings[3]) {
+            batch.draw(Assets.warning, 1812, 256, -256, -256);
+        }
 
         font.draw(batch, "Distance: " + Double.toString(Math.floor(raceDist)) + "m",30,30);
         batch.end();
     }
 
     public void generalUpdate(){
+
+        obstacleGrid.printGrid();
+
+        if(playerIFrames == 0){
+            playerIFramesMoving = false;
+        }
+
+        for(int i = 0; i<3;i++){
+            if(otherBoats[i].isAlive()) {
+                if (rivalIFrames[i] == 0) {
+                    rivalIFramesMoving[i] = false;
+                }
+
+                if (rivalIFramesMoving[i]) {
+                    rivalIFrames[i] -= 1;
+                }
+
+                if (rivalIFrames[i] == 0) {
+                    Integer[] coords = gameGrid.findBoat(i);
+                    //            System.err.println(obstacleGrid.findVal(coords[0],coords[1]));
+                    if (obstacleGrid.findVal(coords[0], coords[1]) == 2) {
+                        otherBoats[i].setHealth(otherBoats[i].getHealth() - 1);
+                        rivalIFrames[i] = 60;
+                        rivalIFramesMoving[i] = true;
+                    }
+                }
+            }
+
+            if(otherBoats[i].getHealth() <= 0 && rivalAlreadyRemoved[i] == false){
+                otherBoats[i].setAlive(false);
+                gameGrid.removeBoat(i);
+                rivalAlreadyRemoved[i] = true;
+            }
+        }
+
+        if(playerIFramesMoving){
+            playerIFrames -= 1;
+        }
+
+        if(playerIFrames == 0) {
+            Integer[] coords = gameGrid.findBoat(3);
+//            System.err.println(obstacleGrid.findVal(coords[0],coords[1]));
+            if (obstacleGrid.findVal(coords[0],coords[1]) == 2){
+                playerHealth -= 1;
+                playerIFrames = 60;
+                playerIFramesMoving = true;
+            }
+        }
+
         for(int i = 0; i<3; i++){
-            Integer[] coords = gameGrid.findBoat(i);
-            otherBoats[i].setX((480*coords[1]) + 112);
-            otherBoats[i].setY((270*coords[0]));
+            if(otherBoats[i].isAlive()) {
+                Integer[] coords = gameGrid.findBoat(i);
+                otherBoats[i].setX((480 * coords[1]) + 112);
+                otherBoats[i].setY((270 * coords[0]));
+            }
         }
 
         if(Gdx.input.isKeyJustPressed((Input.Keys.M))){
@@ -289,52 +395,80 @@ public class GameScreen implements Screen {
             Obstacles[3].RandomiseType();
         }
 
+        obstacletimer += 1;
 
-        obstacleGrid.Incoming(2);
-        obstacleGrid.Incoming(3);
+        if(obstacletimer > 30) {
+            if(obstacleMoving == false) {
+                obstacleNum = ThreadLocalRandom.current().nextInt(0,4);;
+                warnings[obstacleNum] = true;
+                Obstacles[obstacleNum].RandomiseType();
+                obstacleGrid.Incoming(obstacleNum);
+                obstacleMoving = true;
+            }
+            obstacleMovingTimer += 1;
+            if(obstacleMovingTimer > 30){
+                warnings[obstacleNum] = false;
+                Obstacles[obstacleNum].incrementY();
+                if(check > 0) {
+                    obstacleGrid.ObstacleMove(obstacleNum);
+                }
+                obstacleMovingTimer = 0;
+                check += 1;
+            }
+            if(Obstacles[obstacleNum].getY() > 1100){
+                obstacleGrid.Passed(obstacleNum);
+                obstacleMoving = false;
+                obstacleMovingTimer = 0;
+                Obstacles[obstacleNum].resetY();
+                obstacletimer = 0;
+                check = 0;
+            }
+        }
 
         for (int i = 0;i < 3; i++){
-            rivalMoveTimers[i] += 1;
-            if(rivalMoveTimers[i] > (otherBoats[i].getSpeed()*30)){
-                gameGrid.printGrid();
-                rivalMoveTimers[i] = 0;
-                Integer[] startingCoords = gameGrid.findBoat(i);
-                if (obstacleGrid.safe(startingCoords[0], startingCoords[1]) == false) {
+            if(otherBoats[i].isAlive()) {
+                rivalMoveTimers[i] += 1;
+                if (rivalMoveTimers[i] > (otherBoats[i].getSpeed() * 30)) {
+                    gameGrid.printGrid();
+                    rivalMoveTimers[i] = 0;
+                    Integer[] startingCoords = gameGrid.findBoat(i);
+                    if (obstacleGrid.safe(startingCoords[0], startingCoords[1]) == false) {
 
-                    if (obstacleGrid.safe(startingCoords[0], startingCoords[1] + 1) && previousMove != "left") {
-                        if (gameGrid.moveRival(i, "right", otherBoats[i])) {
+                        if (obstacleGrid.safe(startingCoords[0], startingCoords[1] + 1) && previousMove != "left") {
+                            if (gameGrid.moveRival(i, "right", otherBoats[i])) {
+                                previousMove = "right";
+                                break;
+                            }
+                        } else if (obstacleGrid.safe(startingCoords[0], startingCoords[1] - 1) && previousMove != "right") {
+                            if (gameGrid.moveRival(i, "left", otherBoats[i])) {
+                                previousMove = "left";
+                                break;
+                            }
+                        } else if (obstacleGrid.safe(startingCoords[0] - 1, startingCoords[1]) && previousMove != "up") {
+                            if (gameGrid.moveRival(i, "down", otherBoats[i])) {
+                                previousMove = "down";
+                                break;
+                            }
+                        } else if (obstacleGrid.safe(startingCoords[0] + 1, startingCoords[1]) && previousMove != "down") {
+                            if (gameGrid.moveRival(i, "up", otherBoats[i])) {
+                                previousMove = "up";
+                                break;
+                            }
+                        }
+
+                        if (gameGrid.moveRival(i, "up", otherBoats[i]) && previousMove != "down") {
+                            previousMove = "up";
+                            break;
+                        } else if (gameGrid.moveRival(i, "down", otherBoats[i]) && previousMove != "up") {
+                            previousMove = "down";
+                            break;
+                        } else if (gameGrid.moveRival(i, "left", otherBoats[i]) && previousMove != "right") {
+                            previousMove = "left";
+                            break;
+                        } else if (gameGrid.moveRival(i, "right", otherBoats[i]) && previousMove != "left") {
                             previousMove = "right";
                             break;
                         }
-                    } else if (obstacleGrid.safe(startingCoords[0], startingCoords[1] - 1) && previousMove != "right") {
-                        if (gameGrid.moveRival(i, "left", otherBoats[i])) {
-                            previousMove = "left";
-                            break;
-                        }
-                    } else if (obstacleGrid.safe(startingCoords[0] - 1, startingCoords[1]) && previousMove != "up") {
-                        if (gameGrid.moveRival(i, "down", otherBoats[i])) {
-                            previousMove = "down";
-                            break;
-                        }
-                    } else if (obstacleGrid.safe(startingCoords[0] + 1, startingCoords[1]) && previousMove != "down") {
-                        if (gameGrid.moveRival(i, "up", otherBoats[i])) {
-                            previousMove = "up";
-                            break;
-                        }
-                    }
-
-                    if (gameGrid.moveRival(i, "up", otherBoats[i]) && previousMove != "down") {
-                        previousMove = "up";
-                        break;
-                    } else if (gameGrid.moveRival(i, "down", otherBoats[i]) && previousMove != "up") {
-                        previousMove = "down";
-                        break;
-                    } else if (gameGrid.moveRival(i, "left", otherBoats[i]) && previousMove != "right") {
-                        previousMove = "left";
-                        break;
-                    } else if (gameGrid.moveRival(i, "right", otherBoats[i]) && previousMove != "left") {
-                        previousMove = "right";
-                        break;
                     }
                 }
             }

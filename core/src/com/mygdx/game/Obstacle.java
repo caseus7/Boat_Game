@@ -12,6 +12,7 @@ public class Obstacle {
     private int type;
     private int speed;
     private int column;
+    private int Y;
     private int index;
     public Animation[] duck_animations;
     public TextureRegion[][] ducks;
@@ -45,6 +46,15 @@ public class Obstacle {
         duck_animations[2] = new Animation(0.3F,log1);
         duck_animations[3] = new Animation(0.3F,log2);
         duck_animations[4] = new Animation(0.3F,log3);
+    }
+    public int getY(){
+        return  this.Y;
+    }
+    public void incrementY(){
+        this.Y += 270;
+    }
+    public void resetY(){
+        this.Y = -284;
     }
 
     public void setCurrentFrame(TextureRegion givenFrame){
