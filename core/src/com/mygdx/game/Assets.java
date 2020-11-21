@@ -27,6 +27,14 @@ public class Assets {
     public static Texture exitSelected;
     public static Texture lIndicator;
     public static Texture caseusLogo;
+    public static Texture first;
+    public static Texture second;
+    public static Texture third;
+    public static Texture fourth;
+    public static Texture menu;
+    public static Texture menuSelected;
+    public static Texture again;
+    public static Texture againSelected;
 
 
     public static void load(){
@@ -40,6 +48,14 @@ public class Assets {
         heart = new Texture(Gdx.files.internal("New Piskel-2.png.png"));
         sprite_sheet = new Texture(Gdx.files.internal("SpriteSheet.png"));
         caseusLogo = new Texture(Gdx.files.internal("CaseusLogo.png"));
+        first = new Texture(Gdx.files.internal("New Piskel-8.png.png"));
+        second = new Texture(Gdx.files.internal("New Piskel-10.png.png"));
+        third = new Texture(Gdx.files.internal("New Piskel-11.png.png"));
+        fourth = new Texture(Gdx.files.internal("New Piskel-12.png.png"));
+        again = new Texture(Gdx.files.internal("again.png"));
+        againSelected = new Texture(Gdx.files.internal("againSelected.png"));
+        menu = new Texture(Gdx.files.internal("menu.png"));
+        menuSelected = new Texture(Gdx.files.internal("menuSelected.png"));
         TextureRegion[][] temp = TextureRegion.split(sprite_sheet, 64,64);
         sprite_frames = new TextureRegion[56];
         boats = new TextureRegion[10][4];

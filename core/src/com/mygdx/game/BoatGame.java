@@ -6,21 +6,15 @@ public class BoatGame extends Game {
 
 	public GameScreen gameScreen;
 	public MenuScreen menuScreen;
+	public EndScreen endScreen;
 	
 	@Override
 	public void create() {
 		Assets.load();
+		endScreen = new EndScreen(this);
 		gameScreen = new GameScreen(this);
 		menuScreen = new MenuScreen(this);
-		setScreen(menuScreen);
-	}
-
-	public void setMenu(){
-		setScreen(menuScreen);
-	}
-
-	public void setGame(){
-		setScreen(gameScreen);
+		setScreen(endScreen);
 	}
 
 }

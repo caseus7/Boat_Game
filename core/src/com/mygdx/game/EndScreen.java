@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class MenuScreen implements Screen{
+public class EndScreen implements Screen{
 
     private BoatGame game;
     OrthographicCamera camera;
@@ -22,9 +22,14 @@ public class MenuScreen implements Screen{
     int waterIndex3 = 0;
     int waterIndex4 = 512;
 
-    String selected = "start";
+    String selected = "again";
 
-    public MenuScreen(BoatGame game){
+    public static String place = "first";
+
+    BitmapFont font = new BitmapFont(Gdx.files.internal("BULKYPIX.fnt"),true);
+
+
+    public EndScreen(BoatGame game){
         this.game = game;
 
         camera = new OrthographicCamera();
@@ -33,6 +38,8 @@ public class MenuScreen implements Screen{
         batch = new SpriteBatch();
 
         stateTime = 0F;
+
+        font.getData().setScale(4,4);
     }
 
     @Override
@@ -75,18 +82,30 @@ public class MenuScreen implements Screen{
         batch.draw(Assets.sprite_frames[50], 1024, waterIndex4, 512, 512);
         batch.draw(Assets.sprite_frames[50], 1536, waterIndex4, 512, 512);
 
-        batch.draw(Assets.current_frame, 1300,300,512,512);
-        batch.draw(Assets.lIndicator, 1430,1000,256,-256);
-
-        batch.draw(Assets.caseusLogo,734,450, 512,-512);
-
-        if(selected == "start") {
-            batch.draw(Assets.startSelected, 734, 700, 512, -512);
-            batch.draw(Assets.exit, 734, 900, 512, -512);
+        if(place == "first") {
+            batch.draw(Assets.first, 734, 450, 512, -512);
+            font.draw(batch, "VICTORY!", 650, 300);
         }
-        if(selected == "exit"){
-            batch.draw(Assets.start, 734, 700, 512, -512);
-            batch.draw(Assets.exitSelected, 734, 900, 512, -512);
+        if(place == "second") {
+            batch.draw(Assets.second, 734, 450, 512, -512);
+            font.draw(batch, "WELL DONE!", 650, 300);
+        }
+        if(place == "third") {
+            batch.draw(Assets.third, 734, 450, 512, -512);
+            font.draw(batch, "PODIUM FINISH!", 650, 300);
+        }
+        if(place == "fourth") {
+            batch.draw(Assets.fourth, 734, 450, 512, -512);
+            font.draw(batch, "Everyone is a WINNER!", 650, 300);
+        }
+
+        if(selected == "again") {
+            batch.draw(Assets.againSelected, 734, 900, 512, -512);
+            batch.draw(Assets.menu, 734, 1100, 512, -512);
+        }
+        if(selected == "menu"){
+            batch.draw(Assets.again, 734, 900, 512, -512);
+            batch.draw(Assets.menuSelected, 734, 1100, 512, -512);
         }
 
         batch.end();
@@ -95,23 +114,23 @@ public class MenuScreen implements Screen{
     private void generalUpdate() {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.DPAD_DOWN)){
-            selected = "exit";
+            selected = "menu";
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.DPAD_UP)){
-            selected = "start";
+            selected = "again";
         }
 
-        if(selected == "start" && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
+            place = "second";
+            System.err.println(place);
+        }
+
+        if(selected == "again" && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             game.setScreen(new GameScreen(game));
         }
 
-        if(Gdx.input.isKeyJustPressed((Input.Keys.L))){
-            if(GameScreen.currentBoat < 9) {
-                GameScreen.currentBoat += 1;
-            }
-            else{
-                GameScreen.currentBoat = 0;
-            }
+        if(selected == "menu" && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+            game.setScreen(game.menuScreen);
         }
 
     }

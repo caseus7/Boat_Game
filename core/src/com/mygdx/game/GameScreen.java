@@ -75,8 +75,12 @@ public class GameScreen implements Screen {
 
     int check = 0;
 
+    Integer[] finalPos = {5,5,5};
+
     public GameScreen(BoatGame game) {
         this.game = game;
+
+        raceDist = 0;
 
         gameGrid.printGrid();
 
@@ -236,7 +240,98 @@ public class GameScreen implements Screen {
 
     public void generalUpdate(){
 
-        obstacleGrid.printGrid();
+        if(otherBoats[0].isAlive() == false && otherBoats[1].isAlive() == false && otherBoats[2].isAlive() == false){
+            EndScreen.place = "first";
+            game.setScreen(game.endScreen);
+        }
+
+        if(raceDist >= 498){
+            for(int i = 0;i<3;i++){
+                if(otherBoats[i].isAlive()){
+                    Integer[] coords = gameGrid.findBoat(i);
+                    finalPos[i] = coords[0];
+                }
+            }
+
+            Integer myPos = gameGrid.findBoat(3)[0];
+
+            if(myPos == 0){
+                EndScreen.place = "first";
+                game.setScreen(game.endScreen);
+            }
+            if(myPos == 1){
+                Integer count = 0;
+                for(int i = 0;i<3;i++){
+                    if(finalPos[i] < 1){
+                        count +=1;
+                    }
+                }
+                if(count == 0){
+                    EndScreen.place = "first";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 1){
+                    EndScreen.place = "second";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 2){
+                    EndScreen.place = "third";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 3){
+                    EndScreen.place = "fourth";
+                    game.setScreen(game.endScreen);
+                }
+            }
+            if(myPos == 2){
+                Integer count = 0;
+                for(int i = 0;i<3;i++){
+                    if(finalPos[i] < 2){
+                        count +=1;
+                    }
+                }
+                if(count == 0){
+                    EndScreen.place = "first";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 1){
+                    EndScreen.place = "second";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 2){
+                    EndScreen.place = "third";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 3){
+                    EndScreen.place = "fourth";
+                    game.setScreen(game.endScreen);
+                }
+            }
+            if(myPos == 3){
+                Integer count = 0;
+                for(int i = 0;i<3;i++){
+                    if(finalPos[i] < 3){
+                        count +=1;
+                    }
+                }
+                if(count == 0){
+                    EndScreen.place = "first";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 1){
+                    EndScreen.place = "second";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 2){
+                    EndScreen.place = "third";
+                    game.setScreen(game.endScreen);
+                }
+                else if(count == 3){
+                    EndScreen.place = "fourth";
+                    game.setScreen(game.endScreen);
+                }
+            }
+        }
 
         if(playerIFrames == 0){
             playerIFramesMoving = false;
@@ -301,7 +396,7 @@ public class GameScreen implements Screen {
             }
         }
         if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
-            playerSpeed = 8;
+            playerSpeed = 200;
         }
         if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) == false){
             playerSpeed = 4;
@@ -456,11 +551,11 @@ public class GameScreen implements Screen {
                             }
                         }
 
-                        if (gameGrid.moveRival(i, "up", otherBoats[i]) && previousMove != "down") {
-                            previousMove = "up";
-                            break;
-                        } else if (gameGrid.moveRival(i, "down", otherBoats[i]) && previousMove != "up") {
+                        if (gameGrid.moveRival(i, "down", otherBoats[i]) && previousMove != "up") {
                             previousMove = "down";
+                            break;
+                        } else if (gameGrid.moveRival(i, "up", otherBoats[i]) && previousMove != "down") {
+                            previousMove = "up";
                             break;
                         } else if (gameGrid.moveRival(i, "left", otherBoats[i]) && previousMove != "right") {
                             previousMove = "left";
