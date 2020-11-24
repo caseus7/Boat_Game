@@ -17,13 +17,16 @@ public class MenuScreen implements Screen{
 
     float stateTime;
 
+    //Values for water background coordinates
     int waterIndex1 = 1024;
     int waterIndex2 = -512;
     int waterIndex3 = 0;
     int waterIndex4 = 512;
 
+    //String that represents which option is selected
     String selected = "start";
 
+    //Font used for on-screen text
     BitmapFont font = new BitmapFont(Gdx.files.internal("BULKYPIX.fnt"),true);
 
     public MenuScreen(BoatGame game){
@@ -44,19 +47,23 @@ public class MenuScreen implements Screen{
 
     @Override
     public void render(float delta) {
+        //Initialising the render
         Gdx.gl.glClearColor(0.95F, 0.95F, 0.95F, 0.95F);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        //Calling the functions that must be called every frame (render is called every frame by default)
         camera.update();
         generalUpdate();
 
         batch.setProjectionMatrix(camera.combined);
 
+        //Incrementing stateTime and initialising the boat animation
         stateTime += Gdx.graphics.getDeltaTime();
         Assets.current_frame = (TextureRegion) Assets.boat_animations[GameScreen.currentBoat].getKeyFrame(stateTime, true);
 
         batch.begin();
 
+        //Drawing the water background
         batch.draw(Assets.sprite_frames[50], 0, waterIndex1, 512, 512);
         batch.draw(Assets.sprite_frames[50], 512, waterIndex1, 512, 512);
         batch.draw(Assets.sprite_frames[50], 1024, waterIndex1, 512, 512);
@@ -77,13 +84,16 @@ public class MenuScreen implements Screen{
         batch.draw(Assets.sprite_frames[50], 1024, waterIndex4, 512, 512);
         batch.draw(Assets.sprite_frames[50], 1536, waterIndex4, 512, 512);
 
+        //Drawing the boat, LIndicator and boat stats
         batch.draw(Assets.current_frame, 1300,300,512,512);
         batch.draw(Assets.lIndicator, 1430,1000,256,-256);
         font.draw(batch, "Speed: " + BoatTypes.getStats(GameScreen.currentBoat)[0], 1650, 450);
         font.draw(batch, "Health: " + BoatTypes.getStats(GameScreen.currentBoat)[1], 1650, 550);
 
+        //Drawing the caseus logo
         batch.draw(Assets.caseusLogo,734,450, 512,-512);
 
+        //Drawing the buttons based on which is selected
         if(selected == "start") {
             batch.draw(Assets.startSelected, 734, 700, 512, -512);
             batch.draw(Assets.exit, 734, 900, 512, -512);
@@ -98,6 +108,7 @@ public class MenuScreen implements Screen{
 
     private void generalUpdate() {
 
+        //Controlling the button selection
         if(Gdx.input.isKeyJustPressed(Input.Keys.DPAD_DOWN)){
             selected = "exit";
         }
@@ -105,6 +116,7 @@ public class MenuScreen implements Screen{
             selected = "start";
         }
 
+        //Controlling the button presses
         if(selected == "start" && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             game.setScreen(new GameScreen(game));
         }
@@ -113,6 +125,7 @@ public class MenuScreen implements Screen{
             Gdx.app.exit();
         }
 
+        //Controlling the boat swapping
         if(Gdx.input.isKeyJustPressed((Input.Keys.L))){
             if(GameScreen.currentBoat < 9) {
                 GameScreen.currentBoat += 1;

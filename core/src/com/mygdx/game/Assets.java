@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 public class Assets {
 
+    //All the assets used in the game
     public static Texture sprite_sheet;
     public static TextureRegion[] sprite_frames;
     public static TextureRegion current_frame;
@@ -39,6 +40,7 @@ public class Assets {
 
     public static void load(){
 
+        //Initialising all the assets
         warning = new Texture(Gdx.files.internal("New Piskel-1.png.png"));
         start = new Texture(Gdx.files.internal("New Piskel-3.png.png"));
         startSelected = new Texture(Gdx.files.internal("New Piskel-4.png.png"));
@@ -61,6 +63,7 @@ public class Assets {
         boats = new TextureRegion[10][4];
         boat_animations = new Animation[10];
 
+        //Splitting up the sprite sheet (we ended up with a lot more sprites
         int index = 0;
         for(int i = 0; i<14; i++){
             for(int j = 0; j<4; j++){
@@ -70,7 +73,6 @@ public class Assets {
         for(int i = 0; i<56; i++) {
             sprite_frames[i].flip(false, true);
         }
-
         index = 0;
         for(int i = 0;i<10; i++) {
             for (int j = 0; j < 4; j++) {
@@ -78,6 +80,7 @@ public class Assets {
             }
         }
 
+        //Initialising the boat animations
         for(int i = 0;i<10;i++){
             boat_animations[i] = new Animation(0.3F,(Object[]) boats[i]);
         }

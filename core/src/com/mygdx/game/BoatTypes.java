@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 public class BoatTypes {
 
+    //Values for speed and health of each boat type
     public static Integer[] getStats(Integer typeNum){
         if(typeNum == 0){
             return new Integer[]{4, 3};
