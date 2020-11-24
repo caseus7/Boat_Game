@@ -1,8 +1,5 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.utils.Null;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 public class BoatGrid {
 
     //The 2D array that is the grid
