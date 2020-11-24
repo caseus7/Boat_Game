@@ -4,6 +4,9 @@ import com.badlogic.gdx.Game;
 
 public class BoatGame extends Game {
 
+	//IMPORTANT NOTE
+	//
+
 	//Three screens for different parts of the game
 	public GameScreen gameScreen;
 	public MenuScreen menuScreen;
