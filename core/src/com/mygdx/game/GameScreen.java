@@ -43,6 +43,7 @@ public class GameScreen implements Screen {
     int finIndex = -512;
 
     int playerSpeed = 4;
+    int playerManeuver = 0;
 
     BitmapFont font = new BitmapFont(Gdx.files.internal("BULKYPIX.fnt"),true);
 
@@ -58,14 +59,16 @@ public class GameScreen implements Screen {
 
     long[] rivalMoveTimers = {0,0,0};
 
-    int obstacletimer;
+    long playerMoveTimer = 0;
+
+    int obstacleTimer;
     int obstacleMovingTimer;
     boolean obstacleMoving;
     int obstacleNum;
 
     boolean[] warnings;
 
-    int playerHealth = 3;
+    int playerHealth = BoatTypes.getStats(currentBoat)[1];
     int playerIFrames = 0;
     boolean playerIFramesMoving = false;
 
@@ -90,13 +93,15 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
         stateTime = 0F;
 
+        playerManeuver = BoatTypes.getStats(currentBoat)[0];
+
         boatX = 592;
         boatY = 540;
 
         otherBoats = new Rival[3];
         for(int i = 0; i<3; i++){
             int temp = ThreadLocalRandom.current().nextInt(0,10);
-            otherBoats[i] = new Rival(4, temp);
+            otherBoats[i] = new Rival(Math.round(8/BoatGame.raceNo), temp);
             otherBoats[i].setY(540);
         }
         otherBoats[0].setX(112);
@@ -111,7 +116,7 @@ public class GameScreen implements Screen {
             Obstacles[i].resetY();
         }
 
-        obstacletimer = 0;
+        obstacleTimer = 0;
         obstacleMovingTimer = 0;
         obstacleMoving = false;
 
@@ -211,14 +216,20 @@ public class GameScreen implements Screen {
         batch.draw(Obstacles[2].getCurrentFrame(), 1332, Obstacles[2].getY(), -256, -256);
         batch.draw(Obstacles[3].getCurrentFrame(), 1812, Obstacles[3].getY(), -256, -256);
 
-        if(playerHealth == 3) {
+        if(playerHealth == 5) {
             batch.draw(Assets.heart, 1920, 120, -128, -128);
         }
-        if(playerHealth >= 2) {
+        if(playerHealth >= 4) {
             batch.draw(Assets.heart, 1792, 120, -128, -128);
         }
-        if(playerHealth >= 1) {
+        if(playerHealth >= 3) {
             batch.draw(Assets.heart, 1664, 120, -128, -128);
+        }
+        if(playerHealth >= 2) {
+            batch.draw(Assets.heart, 1536, 120, -128, -128);
+        }
+        if(playerHealth >= 1) {
+            batch.draw(Assets.heart, 1408, 120, -128, -128);
         }
 
         if(warnings[0]) {
@@ -240,8 +251,17 @@ public class GameScreen implements Screen {
 
     public void generalUpdate(){
 
+        playerMoveTimer += 1;
+
         if(otherBoats[0].isAlive() == false && otherBoats[1].isAlive() == false && otherBoats[2].isAlive() == false){
+            BoatGame.score += 4;
             EndScreen.place = "first";
+            game.setScreen(game.endScreen);
+        }
+
+        if(playerHealth == 0){
+            BoatGame.score += 1;
+            EndScreen.place = "fourth";
             game.setScreen(game.endScreen);
         }
 
@@ -256,6 +276,7 @@ public class GameScreen implements Screen {
             Integer myPos = gameGrid.findBoat(3)[0];
 
             if(myPos == 0){
+                BoatGame.score += 4;
                 EndScreen.place = "first";
                 game.setScreen(game.endScreen);
             }
@@ -267,18 +288,22 @@ public class GameScreen implements Screen {
                     }
                 }
                 if(count == 0){
+                    BoatGame.score += 4;
                     EndScreen.place = "first";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 1){
+                    BoatGame.score += 3;
                     EndScreen.place = "second";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 2){
+                    BoatGame.score += 2;
                     EndScreen.place = "third";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 3){
+                    BoatGame.score += 1;
                     EndScreen.place = "fourth";
                     game.setScreen(game.endScreen);
                 }
@@ -291,18 +316,22 @@ public class GameScreen implements Screen {
                     }
                 }
                 if(count == 0){
+                    BoatGame.score += 4;
                     EndScreen.place = "first";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 1){
+                    BoatGame.score += 3;
                     EndScreen.place = "second";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 2){
+                    BoatGame.score += 2;
                     EndScreen.place = "third";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 3){
+                    BoatGame.score += 1;
                     EndScreen.place = "fourth";
                     game.setScreen(game.endScreen);
                 }
@@ -315,18 +344,22 @@ public class GameScreen implements Screen {
                     }
                 }
                 if(count == 0){
+                    BoatGame.score += 4;
                     EndScreen.place = "first";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 1){
+                    BoatGame.score += 3;
                     EndScreen.place = "second";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 2){
+                    BoatGame.score += 2;
                     EndScreen.place = "third";
                     game.setScreen(game.endScreen);
                 }
                 else if(count == 3){
+                    BoatGame.score += 1;
                     EndScreen.place = "fourth";
                     game.setScreen(game.endScreen);
                 }
@@ -454,30 +487,34 @@ public class GameScreen implements Screen {
             finIndex += playerSpeed;
         }
 
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.W)){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W) && playerMoveTimer > (playerManeuver * 15)) {
+            playerMoveTimer = 0;
             gameGrid.printGrid();
-            if(gameGrid.moveBoat(3, "up")){
+            if (gameGrid.moveBoat(3, "up")) {
                 boatY -= 270;
             }
             gameGrid.printGrid();
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.A)){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.A) && playerMoveTimer > (playerManeuver * 15)) {
+            playerMoveTimer = 0;
             gameGrid.printGrid();
-            if(gameGrid.moveBoat(3, "left")) {
+            if (gameGrid.moveBoat(3, "left")) {
                 boatX -= 480;
             }
             gameGrid.printGrid();
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.S)){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.S) && playerMoveTimer > (playerManeuver * 15)) {
+            playerMoveTimer = 0;
             gameGrid.printGrid();
-            if(gameGrid.moveBoat(3, "down")) {
+            if (gameGrid.moveBoat(3, "down")) {
                 boatY += 270;
             }
             gameGrid.printGrid();
-        }if(Gdx.input.isKeyJustPressed(Input.Keys.D)){
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.D) && playerMoveTimer > (playerManeuver * 15)) {
+            playerMoveTimer = 0;
             gameGrid.printGrid();
-            if(gameGrid.moveBoat(3, "right")) {
+            if (gameGrid.moveBoat(3, "right")) {
                 boatX += 480;
             }
             gameGrid.printGrid();
@@ -490,9 +527,9 @@ public class GameScreen implements Screen {
             Obstacles[3].RandomiseType();
         }
 
-        obstacletimer += 1;
+        obstacleTimer += 1;
 
-        if(obstacletimer > 30) {
+        if(obstacleTimer > 80/BoatGame.raceNo) {
             if(obstacleMoving == false) {
                 obstacleNum = ThreadLocalRandom.current().nextInt(0,4);;
                 warnings[obstacleNum] = true;
@@ -501,7 +538,7 @@ public class GameScreen implements Screen {
                 obstacleMoving = true;
             }
             obstacleMovingTimer += 1;
-            if(obstacleMovingTimer > 30){
+            if(obstacleMovingTimer > 80/BoatGame.raceNo){
                 warnings[obstacleNum] = false;
                 Obstacles[obstacleNum].incrementY();
                 if(check > 0) {
@@ -515,7 +552,7 @@ public class GameScreen implements Screen {
                 obstacleMoving = false;
                 obstacleMovingTimer = 0;
                 Obstacles[obstacleNum].resetY();
-                obstacletimer = 0;
+                obstacleTimer = 0;
                 check = 0;
             }
         }

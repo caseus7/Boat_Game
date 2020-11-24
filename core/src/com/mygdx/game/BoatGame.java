@@ -7,6 +7,9 @@ public class BoatGame extends Game {
 	public GameScreen gameScreen;
 	public MenuScreen menuScreen;
 	public EndScreen endScreen;
+
+	public static int score = 0;
+	public static int raceNo = 1;
 	
 	@Override
 	public void create() {
@@ -14,7 +17,7 @@ public class BoatGame extends Game {
 		endScreen = new EndScreen(this);
 		gameScreen = new GameScreen(this);
 		menuScreen = new MenuScreen(this);
-		setScreen(endScreen);
+		setScreen(menuScreen);
 	}
 
 }

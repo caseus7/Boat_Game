@@ -24,7 +24,7 @@ public class EndScreen implements Screen{
 
     String selected = "again";
 
-    public static String place = "first";
+    public static String place = "fourth";
 
     BitmapFont font = new BitmapFont(Gdx.files.internal("BULKYPIX.fnt"),true);
 
@@ -59,6 +59,7 @@ public class EndScreen implements Screen{
 
         stateTime += Gdx.graphics.getDeltaTime();
         Assets.current_frame = (TextureRegion) Assets.boat_animations[GameScreen.currentBoat].getKeyFrame(stateTime, true);
+        font.getData().setScale(4,4);
 
         batch.begin();
 
@@ -88,24 +89,35 @@ public class EndScreen implements Screen{
         }
         if(place == "second") {
             batch.draw(Assets.second, 734, 450, 512, -512);
-            font.draw(batch, "WELL DONE!", 650, 300);
+            font.draw(batch, "WELL DONE!", 550, 300);
         }
         if(place == "third") {
             batch.draw(Assets.third, 734, 450, 512, -512);
-            font.draw(batch, "PODIUM FINISH!", 650, 300);
+            font.draw(batch, "PODIUM FINISH!", 350, 300);
         }
         if(place == "fourth") {
             batch.draw(Assets.fourth, 734, 450, 512, -512);
-            font.draw(batch, "Everyone is a WINNER!", 650, 300);
+            font.draw(batch, "You TRIED!", 550, 300);
         }
+
+        font.getData().setScale(2,2);
+        if(BoatGame.raceNo == 4){
+            font.draw(batch, "Final Score: " + BoatGame.score, 680, 450);
+        }
+
+        font.draw(batch, "Race No: " + BoatGame.raceNo, 1, 1);
 
         if(selected == "again") {
             batch.draw(Assets.againSelected, 734, 900, 512, -512);
-            batch.draw(Assets.menu, 734, 1100, 512, -512);
+            if(BoatGame.raceNo == 4) {
+                batch.draw(Assets.menu, 734, 1100, 512, -512);
+            }
         }
         if(selected == "menu"){
             batch.draw(Assets.again, 734, 900, 512, -512);
-            batch.draw(Assets.menuSelected, 734, 1100, 512, -512);
+            if(BoatGame.raceNo == 4) {
+                batch.draw(Assets.menuSelected, 734, 1100, 512, -512);
+            }
         }
 
         batch.end();
@@ -113,10 +125,10 @@ public class EndScreen implements Screen{
 
     private void generalUpdate() {
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.DPAD_DOWN)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.DPAD_DOWN) && BoatGame.raceNo == 4){
             selected = "menu";
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.DPAD_UP)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.DPAD_UP) && BoatGame.raceNo == 4){
             selected = "again";
         }
 
@@ -126,7 +138,14 @@ public class EndScreen implements Screen{
         }
 
         if(selected == "again" && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
-            game.setScreen(new GameScreen(game));
+            if(BoatGame.raceNo < 4) {
+                BoatGame.raceNo += 1;
+                game.setScreen(new GameScreen(game));
+            }
+            else {
+                BoatGame.raceNo = 1;
+                game.setScreen(new GameScreen(game));
+            }
         }
 
         if(selected == "menu" && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){

@@ -24,6 +24,8 @@ public class MenuScreen implements Screen{
 
     String selected = "start";
 
+    BitmapFont font = new BitmapFont(Gdx.files.internal("BULKYPIX.fnt"),true);
+
     public MenuScreen(BoatGame game){
         this.game = game;
 
@@ -77,6 +79,8 @@ public class MenuScreen implements Screen{
 
         batch.draw(Assets.current_frame, 1300,300,512,512);
         batch.draw(Assets.lIndicator, 1430,1000,256,-256);
+        font.draw(batch, "Speed: " + BoatTypes.getStats(GameScreen.currentBoat)[0], 1650, 450);
+        font.draw(batch, "Health: " + BoatTypes.getStats(GameScreen.currentBoat)[1], 1650, 550);
 
         batch.draw(Assets.caseusLogo,734,450, 512,-512);
 
@@ -103,6 +107,10 @@ public class MenuScreen implements Screen{
 
         if(selected == "start" && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             game.setScreen(new GameScreen(game));
+        }
+
+        if(selected == "exit" && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+            Gdx.app.exit();
         }
 
         if(Gdx.input.isKeyJustPressed((Input.Keys.L))){
